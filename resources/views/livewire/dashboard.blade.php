@@ -142,13 +142,22 @@
             </div>
         @else
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                @php
+                $countryFlag = function(string $code): string {
+                    $code = strtoupper($code);
+                    if (strlen($code) !== 2) return '🏳️';
+                    return mb_chr(0x1F1E6 + ord($code[0]) - ord('A'))
+                         . mb_chr(0x1F1E6 + ord($code[1]) - ord('A'));
+                };
+                @endphp
                 @foreach($filteredCountries as $country)
                     <a href="/assessments/country/{{ $country['code'] ?? '' }}"
                        wire:navigate
                        class="group flex items-center gap-3.5 rounded-xl bg-white border border-gray-100 p-4 shadow-sm hover:shadow-lg hover:border-red-200 transition-all duration-300 hover:-translate-y-0.5">
-                        {{-- Country code badge --}}
-                        <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-red-50 text-red-700 flex items-center justify-center text-xs font-bold tracking-wider group-hover:bg-red-600 group-hover:text-white transition-colors duration-300">
-                            {{ strtoupper($country['code'] ?? '??') }}
+                        {{-- Country flag + code --}}
+                        <div class="flex-shrink-0 flex items-center gap-2">
+                            <span class="text-2xl leading-none" title="{{ strtoupper($country['code'] ?? '') }}">{{ $countryFlag($country['code'] ?? '') }}</span>
+                            <span class="text-xs font-bold tracking-wider text-gray-400 font-mono">{{ strtoupper($country['code'] ?? '??') }}</span>
                         </div>
 
                         {{-- Country name --}}

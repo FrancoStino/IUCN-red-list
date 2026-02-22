@@ -1,59 +1,116 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# IUCN Red List Explorer
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel 12 web application that explores the IUCN Red List API v4, displaying species assessments by ecological system and country. Built with Livewire 4 and Tailwind CSS 4.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Dashboard**: Browse species assessments by ecological system (Terrestrial, Freshwater, Marine) or by country
+- **Assessments List**: View paginated assessments with list/card toggle and pagination/infinite scroll switch
+- **Species Detail**: View taxonomic information, common names, and assessment history
+- **Assessment Detail**: View conservation status, population trend, conservation actions, and documentation
+- **Favorites**: Add species to a global favorites list (persisted in database)
+- **Cached Footer**: API version, Red List version, and species count (cached for 1 day)
+- **Country Flags**: ISO alpha-2 country codes displayed with Unicode flag emojis
+- **Filters**: Filter assessments by year and extinction status
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tech Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Backend**: Laravel 12, PHP 8.4
+- **Frontend**: Livewire 4, Tailwind CSS 4, Vite
+- **Database**: MariaDB 11.4
+- **Development**: Lando (Docker-based)
+- **Package Manager**: Yarn
 
-## Learning Laravel
+## Requirements
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (or Docker Engine + Docker Compose)
+- [Lando](https://lando.dev/) (v3.x or later)
+- An IUCN Red List API v4 token ([request one here](https://api.iucnredlist.org/))
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Installation
 
-## Laravel Sponsors
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd IUCN-Red-List
+   ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+2. **Copy the environment file**
+   ```bash
+   cp .env.example .env
+   ```
 
-### Premium Partners
+3. **Set your IUCN API token**
+   
+   Open `.env` and add your token:
+   ```
+   IUCN_API_TOKEN=your_token_here
+   ```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+4. **Start Lando**
+   ```bash
+   lando start
+   ```
+   This will:
+   - Build the Docker containers (PHP 8.4, Nginx, MariaDB 11.4)
+   - Install Node.js and Yarn
+   - Install frontend dependencies via `yarn`
 
-## Contributing
+5. **Install PHP dependencies**
+   ```bash
+   lando composer install
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+6. **Generate application key**
+   ```bash
+   lando artisan key:generate
+   ```
 
-## Code of Conduct
+7. **Run database migrations**
+   ```bash
+   lando artisan migrate
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+8. **Build frontend assets**
+   ```bash
+   lando yarn build
+   ```
 
-## Security Vulnerabilities
+9. **Access the application**
+   
+   Open your browser and navigate to the URL shown by Lando (typically `https://iucn-red-list.lndo.site`).
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Development
+
+To run the Vite development server with hot-reload:
+```bash
+lando dev
+```
+
+## Available Lando Commands
+
+| Command | Description |
+|---------|-------------|
+| `lando artisan` | Run Laravel Artisan commands |
+| `lando composer` | Run Composer commands |
+| `lando yarn` | Run Yarn commands |
+| `lando dev` | Start Vite dev server |
+| `lando tinker` | Open Laravel Tinker REPL |
+| `lando test` | Run PHPUnit tests |
+| `lando pint` | Run Laravel Pint (code style) |
+
+## Caching Strategy
+
+| Data | Cache Duration | Description |
+|------|---------------|-------------|
+| Footer statistics | 1 day | API version, Red List version, species count |
+| Dashboard lists | 1 hour | Systems and countries lists |
+| Detail pages | 5 minutes | Taxon and assessment details |
+
+## API Reference
+
+This application consumes the [IUCN Red List API v4](https://api.iucnredlist.org/api/v4/).
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is for evaluation purposes.
