@@ -145,6 +145,105 @@ class IucnApiService
     }
 
     /**
+     * Get taxon details by SIS ID.
+     *
+     * @return array
+     */
+    public function getTaxonDetails(int $sisId): array
+    {
+        return Cache::remember("iucn.taxon.{$sisId}", 300, function () use ($sisId) {
+            try {
+                $response = $this->client()->get("/taxa/sis/{$sisId}");
+
+                if ($response->successful()) {
+                    return $response->json();
+                }
+
+                return [];
+            } catch (RequestException | Throwable $e) {
+                $this->logError("/taxa/sis/{$sisId}", [], $e);
+                return [];
+            }
+        });
+    }
+
+    /**
+     * Get assessment details by assessment ID.
+     *
+     * @return array
+     */
+    public function getAssessmentDetails(int $assessmentId): array
+    {
+        return Cache::remember("iucn.assessment.{$assessmentId}", 300, function () use ($assessmentId) {
+            try {
+                $response = $this->client()->get("/assessment/{$assessmentId}");
+
+                if ($response->successful()) {
+                    return $response->json();
+                }
+
+                return [];
+            } catch (RequestException | Throwable $e) {
+                $this->logError("/assessment/{$assessmentId}", [], $e);
+                return [];
+            }
+        });
+    }
+
+    /**
+     * Get conservation actions.
+     *
+     * @return array
+     */
+    public function getConservationActions(): array
+    {
+        return Cache::remember('iucn.conservation_actions', 3600, function () {
+            try {
+                $response = $this->client()->get('/conservation_actions/');
+
+                if ($response->successful()) {
+                    return $response->json();
+                }
+
+                return [];
+            } catch (RequestException | Throwable $e) {
+                $this->logError('/conservation_actions/', [], $e);
+                return [];
+            }
+        });
+    }
+
+    /**
+     * Get aggregated footer statistics.
+     *
+     * @return array{species_count: int, red_list_version: string, api_version: string}
+     */
+    public function getStatistics(): array
+    {
+        return Cache::remember('iucn.statistics', 86400, function () {
+            try {
+                $client = $this->client();
+
+                $countResponse = $client->get('/statistics/count');
+                $versionResponse = $client->get('/information/red_list_version');
+
+                return [
+                    'species_count' => $countResponse->successful() ? (int) $countResponse->json() : 0,
+                    'red_list_version' => $versionResponse->successful() ? (string) $versionResponse->json() : 'N/A',
+                    'api_version' => 'v4',
+                ];
+            } catch (RequestException | Throwable $e) {
+                $this->logError('/statistics/aggregated', [], $e);
+                return [
+                    'species_count' => 0,
+                    'red_list_version' => 'N/A',
+                    'api_version' => 'v4',
+                ];
+            }
+        });
+    }
+
+    /**
      * Translate IUCN category code to human-readable name.
      */
     public static function translateCategory(string $code): string
