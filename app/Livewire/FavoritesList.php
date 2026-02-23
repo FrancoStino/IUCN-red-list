@@ -16,6 +16,7 @@ class FavoritesList extends Component
     public function removeFavorite(int $taxonId): void
     {
         Favorite::where('taxon_id', $taxonId)->delete();
+        $this->dispatch('favorites-updated');
     }
 
     public function render()
