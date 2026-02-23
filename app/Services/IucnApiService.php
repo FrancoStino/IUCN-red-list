@@ -43,15 +43,17 @@ class IucnApiService
 
                 if ($response->successful()) {
                     $systems = $response->json('systems') ?? [];
-                    return collect($systems)->map(fn($s) => [
+
+                    return collect($systems)->map(fn ($s) => [
                         'code' => $s['code'],
                         'name' => $s['description']['en'] ?? $s['code'],
                     ])->values()->all();
                 }
 
                 return [];
-            } catch (RequestException | Throwable $e) {
+            } catch (RequestException|Throwable $e) {
                 $this->logError('/systems/', [], $e);
+
                 return [];
             }
         });
@@ -70,15 +72,17 @@ class IucnApiService
 
                 if ($response->successful()) {
                     $countries = $response->json('countries') ?? [];
-                    return collect($countries)->map(fn($c) => [
+
+                    return collect($countries)->map(fn ($c) => [
                         'code' => $c['code'],
                         'name' => $c['description']['en'] ?? $c['code'],
                     ])->values()->all();
                 }
 
                 return [];
-            } catch (RequestException | Throwable $e) {
+            } catch (RequestException|Throwable $e) {
                 $this->logError('/countries/', [], $e);
+
                 return [];
             }
         });
@@ -112,8 +116,9 @@ class IucnApiService
                 }
 
                 return $this->assessmentFallback();
-            } catch (RequestException | Throwable $e) {
+            } catch (RequestException|Throwable $e) {
                 $this->logError("/systems/{$systemCode}", ['page' => $page], $e);
+
                 return $this->assessmentFallback();
             }
         });
@@ -147,8 +152,9 @@ class IucnApiService
                 }
 
                 return $this->assessmentFallback();
-            } catch (RequestException | Throwable $e) {
+            } catch (RequestException|Throwable $e) {
                 $this->logError("/countries/{$countryCode}", ['page' => $page], $e);
+
                 return $this->assessmentFallback();
             }
         });
@@ -156,8 +162,6 @@ class IucnApiService
 
     /**
      * Get taxon details by SIS ID.
-     *
-     * @return array
      */
     public function getTaxonDetails(int $sisId): array
     {
@@ -167,16 +171,18 @@ class IucnApiService
 
                 if ($response->successful()) {
                     $data = $response->json();
+
                     return [
-                        'sis_id'      => $data['sis_id'] ?? null,
-                        'taxon'       => $data['taxon'] ?? [],
+                        'sis_id' => $data['sis_id'] ?? null,
+                        'taxon' => $data['taxon'] ?? [],
                         'assessments' => $data['assessments'] ?? [],
                     ];
                 }
 
                 return [];
-            } catch (RequestException | Throwable $e) {
+            } catch (RequestException|Throwable $e) {
                 $this->logError("/taxa/sis/{$sisId}", [], $e);
+
                 return [];
             }
         });
@@ -184,8 +190,6 @@ class IucnApiService
 
     /**
      * Get assessment details by assessment ID.
-     *
-     * @return array
      */
     public function getAssessmentDetails(int $assessmentId): array
     {
@@ -198,8 +202,9 @@ class IucnApiService
                 }
 
                 return [];
-            } catch (RequestException | Throwable $e) {
+            } catch (RequestException|Throwable $e) {
                 $this->logError("/assessment/{$assessmentId}", [], $e);
+
                 return [];
             }
         });
@@ -207,8 +212,6 @@ class IucnApiService
 
     /**
      * Get conservation actions.
-     *
-     * @return array
      */
     public function getConservationActions(): array
     {
@@ -221,8 +224,9 @@ class IucnApiService
                 }
 
                 return [];
-            } catch (RequestException | Throwable $e) {
+            } catch (RequestException|Throwable $e) {
                 $this->logError('/conservation_actions/', [], $e);
+
                 return [];
             }
         });
@@ -239,16 +243,17 @@ class IucnApiService
             try {
                 $client = $this->client();
                 $apiVersionResponse = $client->get('/information/api_version');
-                $rlVersionResponse  = $client->get('/information/red_list_version');
-                $countResponse      = $client->get('/statistics/count');
+                $rlVersionResponse = $client->get('/information/red_list_version');
+                $countResponse = $client->get('/statistics/count');
 
                 return [
-                    'api_version'      => $apiVersionResponse->successful() ? ($apiVersionResponse->json('api_version') ?? 'v4') : 'v4',
+                    'api_version' => $apiVersionResponse->successful() ? ($apiVersionResponse->json('api_version') ?? 'v4') : 'v4',
                     'red_list_version' => $rlVersionResponse->successful() ? ($rlVersionResponse->json('red_list_version') ?? 'N/A') : 'N/A',
-                    'species_count'    => $countResponse->successful() ? (int) ($countResponse->json('count') ?? 0) : 0,
+                    'species_count' => $countResponse->successful() ? (int) ($countResponse->json('count') ?? 0) : 0,
                 ];
-            } catch (RequestException | Throwable $e) {
+            } catch (RequestException|Throwable $e) {
                 $this->logError('/statistics/aggregated', [], $e);
+
                 return [
                     'species_count' => 0,
                     'red_list_version' => 'N/A',
@@ -305,6 +310,7 @@ class IucnApiService
                 'params' => $params,
                 'status' => 429,
             ]);
+
             return;
         }
 

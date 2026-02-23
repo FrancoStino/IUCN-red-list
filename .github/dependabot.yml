@@ -1,0 +1,31 @@
+version: 2
+updates:
+  # Maintain dependencies for Composer
+  - package-ecosystem: 'composer'
+    directory: '/'
+    target-branch: "develop"
+    schedule:
+      interval: 'weekly'
+    # Always increase the version requirement
+    # to match the new version.
+    versioning-strategy: increase
+
+  # Maintain dependencies for yarn
+  - package-ecosystem: 'yarn'
+    directory: '/'
+    target-branch: "develop"
+    schedule:
+      interval: 'weekly'
+    # Always increase the version requirement
+    # to match the new version.
+    versioning-strategy: increase
+
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "develop"
+    schedule:
+      interval: "weekly"
+    # Always increase the version requirement
+    # to match the new version.
+    versioning-strategy: increase

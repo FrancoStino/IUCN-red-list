@@ -1,11 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Livewire\AssessmentDetail;
+use App\Livewire\AssessmentsList;
 use App\Livewire\Dashboard;
 use App\Livewire\FavoritesList;
-use App\Livewire\AssessmentsList;
 use App\Livewire\SpeciesDetail;
-use App\Livewire\AssessmentDetail;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', Dashboard::class)->name('dashboard');
 Route::get('/favorites', FavoritesList::class)->name('favorites');

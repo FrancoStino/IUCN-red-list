@@ -1,6 +1,7 @@
 # IUCN Red List Explorer
 
-A Laravel 12 web application that explores the IUCN Red List API v4, displaying species assessments by ecological system and country. Built with Livewire 4 and Tailwind CSS 4.
+A Laravel 12 web application that explores the IUCN Red List API v4, displaying species assessments by ecological system
+and country. Built with Livewire 4 and Tailwind CSS 4.
 
 ## Features
 
@@ -41,7 +42,7 @@ A Laravel 12 web application that explores the IUCN Red List API v4, displaying 
    ```
 
 3. **Set your IUCN API token**
-   
+
    Open `.env` and add your token:
    ```
    IUCN_API_TOKEN=your_token_here
@@ -52,9 +53,9 @@ A Laravel 12 web application that explores the IUCN Red List API v4, displaying 
    lando start
    ```
    This will:
-   - Build the Docker containers (PHP 8.4, Nginx, MariaDB 11.4)
-   - Install Node.js and Yarn
-   - Install frontend dependencies via `yarn`
+    - Build the Docker containers (PHP 8.4, Nginx, MariaDB 11.4)
+    - Install Node.js and Yarn
+    - Install frontend dependencies via `yarn`
 
 5. **Install PHP dependencies**
    ```bash
@@ -77,35 +78,36 @@ A Laravel 12 web application that explores the IUCN Red List API v4, displaying 
    ```
 
 9. **Access the application**
-   
-   Open your browser and navigate to the URL shown by Lando (typically `https://iucn-red-list.lndo.site`).
+
+   Open your browser and navigate to the URL shown by Lando `https://iucn-red-list.lndo.site`.
 
 ## Development
 
 To run the Vite development server with hot-reload:
+
 ```bash
 lando dev
 ```
 
 ## Available Lando Commands
 
-| Command | Description |
-|---------|-------------|
-| `lando artisan` | Run Laravel Artisan commands |
-| `lando composer` | Run Composer commands |
-| `lando yarn` | Run Yarn commands |
-| `lando dev` | Start Vite dev server |
-| `lando tinker` | Open Laravel Tinker REPL |
-| `lando test` | Run PHPUnit tests |
-| `lando pint` | Run Laravel Pint (code style) |
+| Command          | Description                   |
+|------------------|-------------------------------|
+| `lando artisan`  | Run Laravel Artisan commands  |
+| `lando composer` | Run Composer commands         |
+| `lando yarn`     | Run Yarn commands             |
+| `lando dev`      | Start Vite dev server         |
+| `lando tinker`   | Open Laravel Tinker REPL      |
+| `lando test`     | Run PHPUnit tests             |
+| `lando pint`     | Run Laravel Pint (code style) |
 
 ## Caching Strategy
 
-| Data | Cache Duration | Description |
-|------|---------------|-------------|
-| Footer statistics | 1 day | API version, Red List version, species count |
-| Dashboard lists | 1 hour | Systems and countries lists |
-| Detail pages | 5 minutes | Taxon and assessment details |
+| Data              | Cache Duration | Description                                  |
+|-------------------|----------------|----------------------------------------------|
+| Footer statistics | 1 day          | API version, Red List version, species count |
+| Dashboard lists   | 1 hour         | Systems and countries lists                  |
+| Detail pages      | 5 minutes      | Taxon and assessment details                 |
 
 ## API Reference
 

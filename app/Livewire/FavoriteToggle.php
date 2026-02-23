@@ -10,8 +10,11 @@ use Livewire\Component;
 class FavoriteToggle extends Component
 {
     public int $taxonId;
+
     public string $scientificName;
+
     public bool $isFavorite = false;
+
     public bool $compact = false;
 
     public function mount(int $taxonId, string $scientificName, bool $compact = false): void

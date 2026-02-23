@@ -10,7 +10,9 @@ use Livewire\Component;
 class Footer extends Component
 {
     public int $speciesCount = 0;
+
     public string $redListVersion = 'N/A';
+
     public string $apiVersion = 'v4';
 
     public function mount(IucnApiService $service): void

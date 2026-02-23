@@ -44,14 +44,6 @@ tooling:
   artisan:
     service: appserver
     cmd: php artisan
-  queue:
-    service: appserver
-    description: Start the queue worker
-    cmd: php artisan queue:work
-  schedule:
-    service: appserver
-    description: Start the scheduler
-    cmd: php artisan schedule:work
   node:
     service: appserver
   yarn:

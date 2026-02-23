@@ -14,6 +14,7 @@ use Livewire\Component;
 class AssessmentDetail extends Component
 {
     public int $assessmentId;
+
     public array $assessment = [];
 
     public function mount(int $assessmentId, IucnApiService $service): void

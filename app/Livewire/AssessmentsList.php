@@ -16,11 +16,14 @@ class AssessmentsList extends Component
 {
     // Route parameters
     public string $type;          // 'system' or 'country'
+
     public string $code;          // system code or country code
+
     public string $name = '';
 
     // UI toggles
     public string $viewMode = 'list';     // 'list' or 'card'
+
     public string $scrollMode = 'paginate'; // 'paginate' or 'scroll'
 
     // Pagination
@@ -30,19 +33,23 @@ class AssessmentsList extends Component
     // Filters
     #[Url]
     public string $yearFilter = '';
+
     public string $extinctFilter = ''; // '' (all), 'yes', 'no'
 
     // Data
     public array $assessments = [];
+
     public array $allAssessments = []; // for infinite scroll accumulation
+
     public array $pagination = ['total' => 0, 'per_page' => 100, 'current_page' => 1];
+
     public bool $hasMore = true;
 
     public function mount(string $type, string $code): void
     {
         $this->type = $type;
         $this->code = $code;
-        
+
         $service = app(IucnApiService::class);
         if ($this->type === 'system') {
             $systems = $service->getSystems();
@@ -129,18 +136,15 @@ class AssessmentsList extends Component
         $filtered = collect($this->assessments);
 
         if ($this->yearFilter !== '') {
-            $filtered = $filtered->filter(fn ($a) =>
-                ($a['year_published'] ?? '') == $this->yearFilter
+            $filtered = $filtered->filter(fn ($a) => ($a['year_published'] ?? '') == $this->yearFilter
             );
         }
 
         if ($this->extinctFilter === 'yes') {
-            $filtered = $filtered->filter(fn ($a) =>
-                !empty($a['possibly_extinct']) || !empty($a['possibly_extinct_in_the_wild'])
+            $filtered = $filtered->filter(fn ($a) => ! empty($a['possibly_extinct']) || ! empty($a['possibly_extinct_in_the_wild'])
             );
         } elseif ($this->extinctFilter === 'no') {
-            $filtered = $filtered->filter(fn ($a) =>
-                empty($a['possibly_extinct']) && empty($a['possibly_extinct_in_the_wild'])
+            $filtered = $filtered->filter(fn ($a) => empty($a['possibly_extinct']) && empty($a['possibly_extinct_in_the_wild'])
             );
         }
 

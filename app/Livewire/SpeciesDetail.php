@@ -14,7 +14,9 @@ use Livewire\Component;
 class SpeciesDetail extends Component
 {
     public int $sisId;
+
     public array $taxon = [];
+
     public array $assessments = [];
 
     public function mount(int $sisId, IucnApiService $service): void

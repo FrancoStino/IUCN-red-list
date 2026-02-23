@@ -29,8 +29,7 @@ class Dashboard extends Component
     {
         $filteredCountries = collect($this->countries)
             ->when($this->search, function ($collection) {
-                return $collection->filter(fn ($c) =>
-                    str_contains(strtolower($c['name'] ?? ''), strtolower($this->search))
+                return $collection->filter(fn ($c) => str_contains(strtolower($c['name'] ?? ''), strtolower($this->search))
                 );
             })
             ->values()
