@@ -42,7 +42,11 @@ class IucnApiService
                 $response = $this->client()->get('/systems/');
 
                 if ($response->successful()) {
-                    return $response->json();
+                    $systems = $response->json('systems') ?? [];
+                    return collect($systems)->map(fn($s) => [
+                        'code' => $s['code'],
+                        'name' => $s['description']['en'] ?? $s['code'],
+                    ])->values()->all();
                 }
 
                 return [];
@@ -65,7 +69,11 @@ class IucnApiService
                 $response = $this->client()->get('/countries/');
 
                 if ($response->successful()) {
-                    return $response->json();
+                    $countries = $response->json('countries') ?? [];
+                    return collect($countries)->map(fn($c) => [
+                        'code' => $c['code'],
+                        'name' => $c['description']['en'] ?? $c['code'],
+                    ])->values()->all();
                 }
 
                 return [];
@@ -79,7 +87,7 @@ class IucnApiService
     /**
      * Get assessments by system code with pagination.
      *
-     * @return array{assessments: array, pagination: array{total: int, per_page: int, current_page: int}}
+     * @return array{assessments: array, pagination: array{total: int, per_page: int, current_page: int, total_pages: int}}
      */
     public function getAssessmentsBySystem(string $systemCode, int $page = 1): array
     {
@@ -93,11 +101,12 @@ class IucnApiService
 
                 if ($response->successful()) {
                     return [
-                        'assessments' => $response->json(),
+                        'assessments' => $response->json('assessments') ?? [],
                         'pagination' => [
-                            'total' => (int) $response->header('X-Total'),
-                            'per_page' => (int) $response->header('X-Per-Page'),
-                            'current_page' => (int) $response->header('X-Page'),
+                            'total' => (int) $response->header('total-count'),
+                            'per_page' => (int) $response->header('page-items'),
+                            'current_page' => (int) $response->header('current-page'),
+                            'total_pages' => (int) $response->header('total-pages'),
                         ],
                     ];
                 }
@@ -113,7 +122,7 @@ class IucnApiService
     /**
      * Get assessments by country code with pagination.
      *
-     * @return array{assessments: array, pagination: array{total: int, per_page: int, current_page: int}}
+     * @return array{assessments: array, pagination: array{total: int, per_page: int, current_page: int, total_pages: int}}
      */
     public function getAssessmentsByCountry(string $countryCode, int $page = 1): array
     {
@@ -127,11 +136,12 @@ class IucnApiService
 
                 if ($response->successful()) {
                     return [
-                        'assessments' => $response->json(),
+                        'assessments' => $response->json('assessments') ?? [],
                         'pagination' => [
-                            'total' => (int) $response->header('X-Total'),
-                            'per_page' => (int) $response->header('X-Per-Page'),
-                            'current_page' => (int) $response->header('X-Page'),
+                            'total' => (int) $response->header('total-count'),
+                            'per_page' => (int) $response->header('page-items'),
+                            'current_page' => (int) $response->header('current-page'),
+                            'total_pages' => (int) $response->header('total-pages'),
                         ],
                     ];
                 }
@@ -156,7 +166,12 @@ class IucnApiService
                 $response = $this->client()->get("/taxa/sis/{$sisId}");
 
                 if ($response->successful()) {
-                    return $response->json();
+                    $data = $response->json();
+                    return [
+                        'sis_id'      => $data['sis_id'] ?? null,
+                        'taxon'       => $data['taxon'] ?? [],
+                        'assessments' => $data['assessments'] ?? [],
+                    ];
                 }
 
                 return [];
@@ -223,14 +238,14 @@ class IucnApiService
         return Cache::remember('iucn.statistics', 86400, function () {
             try {
                 $client = $this->client();
-
-                $countResponse = $client->get('/statistics/count');
-                $versionResponse = $client->get('/information/red_list_version');
+                $apiVersionResponse = $client->get('/information/api_version');
+                $rlVersionResponse  = $client->get('/information/red_list_version');
+                $countResponse      = $client->get('/statistics/count');
 
                 return [
-                    'species_count' => $countResponse->successful() ? (int) $countResponse->json() : 0,
-                    'red_list_version' => $versionResponse->successful() ? (string) $versionResponse->json() : 'N/A',
-                    'api_version' => 'v4',
+                    'api_version'      => $apiVersionResponse->successful() ? ($apiVersionResponse->json('api_version') ?? 'v4') : 'v4',
+                    'red_list_version' => $rlVersionResponse->successful() ? ($rlVersionResponse->json('red_list_version') ?? 'N/A') : 'N/A',
+                    'species_count'    => $countResponse->successful() ? (int) ($countResponse->json('count') ?? 0) : 0,
                 ];
             } catch (RequestException | Throwable $e) {
                 $this->logError('/statistics/aggregated', [], $e);
@@ -265,7 +280,7 @@ class IucnApiService
     /**
      * Default fallback structure for assessments.
      *
-     * @return array{assessments: array, pagination: array{total: int, per_page: int, current_page: int}}
+     * @return array{assessments: array, pagination: array{total: int, per_page: int, current_page: int, total_pages: int}}
      */
     private function assessmentFallback(): array
     {
@@ -275,6 +290,7 @@ class IucnApiService
                 'total' => 0,
                 'per_page' => 100,
                 'current_page' => 1,
+                'total_pages' => 1,
             ],
         ];
     }
