@@ -17,6 +17,7 @@ class AssessmentsList extends Component
     // Route parameters
     public string $type;          // 'system' or 'country'
     public string $code;          // system code or country code
+    public string $name = '';
 
     // UI toggles
     public string $viewMode = 'list';     // 'list' or 'card'
@@ -41,6 +42,18 @@ class AssessmentsList extends Component
     {
         $this->type = $type;
         $this->code = $code;
+        
+        $service = app(IucnApiService::class);
+        if ($this->type === 'system') {
+            $systems = $service->getSystems();
+            $match = collect($systems)->firstWhere('code', $this->code);
+            $this->name = $match['name'] ?? strtoupper($this->code);
+        } else {
+            $countries = $service->getCountries();
+            $match = collect($countries)->firstWhere('code', $this->code);
+            $this->name = $match['name'] ?? strtoupper($this->code);
+        }
+
         $this->loadAssessments();
     }
 
@@ -63,10 +76,7 @@ class AssessmentsList extends Component
             $this->assessments = $result['assessments'];
         }
 
-        $totalPages = $this->pagination['per_page'] > 0
-            ? (int) ceil($this->pagination['total'] / $this->pagination['per_page'])
-            : 1;
-        $this->hasMore = $this->page < $totalPages;
+        $this->hasMore = $this->page < ($this->pagination['total_pages'] ?? 1);
     }
 
     public function loadMore(): void
@@ -146,9 +156,7 @@ class AssessmentsList extends Component
         return view('livewire.assessments-list', [
             'filteredAssessments' => $filtered->values()->all(),
             'years' => $years,
-            'totalPages' => $this->pagination['per_page'] > 0
-                ? (int) ceil($this->pagination['total'] / $this->pagination['per_page'])
-                : 1,
+            'totalPages' => $this->pagination['total_pages'] ?? 1,
         ]);
     }
 }

@@ -25,10 +25,10 @@ $getCategoryColor = function ($category) {
         <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
                 <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
-                    Assessments for <span class="text-blue-600 dark:text-blue-400 uppercase">{{ $type }}</span>
+                    {{ $name }}
                 </h1>
                 <p class="mt-2 text-lg text-gray-600 dark:text-gray-300 font-mono bg-gray-100 dark:bg-gray-800 inline-block px-2 py-1 rounded">
-                    Code: {{ $code }}
+                    {{ ucfirst($type) }} · Code: {{ $code }}
                 </p>
             </div>
             <div class="flex items-center">
@@ -115,6 +115,7 @@ $getCategoryColor = function ($category) {
                         <thead class="bg-gray-50 dark:bg-gray-900/50">
                             <tr>
                                 <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-200 sm:pl-6">Year</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-200">Species</th>
                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-200">Assessment ID</th>
                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-200">Category</th>
                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-200">Flags</th>
@@ -129,13 +130,16 @@ $getCategoryColor = function ($category) {
                                     <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-500 dark:text-gray-400 font-mono sm:pl-6">
                                         {{ $a['year_published'] ?? 'N/A' }}
                                     </td>
-                                    <td class="whitespace-nowrap px-3 py-4 text-sm font-medium">
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm italic font-medium text-gray-900 dark:text-white">
+                                        {{ $a['taxon_scientific_name'] ?? 'Unknown' }}
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm">
                                         <a href="/assessment/{{ $a['assessment_id'] }}" wire:navigate class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 hover:underline">
                                             {{ $a['assessment_id'] }}
                                         </a>
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm">
-                                        @php $cat = $a['category'] ?? ''; @endphp
+                                        @php $cat = $a['red_list_category_code'] ?? ''; @endphp
                                         <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium shadow-sm {{ $getCategoryColor($cat) }}">
                                             {{ $cat }} - {{ IucnApiService::translateCategory($cat) }}
                                         </span>
@@ -150,7 +154,7 @@ $getCategoryColor = function ($category) {
                                         @endif
                                     </td>
                                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                                        <a href="https://www.iucnredlist.org/species/{{ $a['sis_id'] ?? '' }}/{{ $a['assessment_id'] }}" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors opacity-0 group-hover:opacity-100 flex items-center justify-end">
+                                        <a href="{{ $a['url'] ?? '#' }}" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors opacity-0 group-hover:opacity-100 flex items-center justify-end">
                                             IUCN <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                                         </a>
                                     </td>
@@ -163,7 +167,7 @@ $getCategoryColor = function ($category) {
                 {{-- Card View --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach($filteredAssessments as $a)
-                        @php $cat = $a['category'] ?? ''; @endphp
+                        @php $cat = $a['red_list_category_code'] ?? ''; @endphp
                         <div class="group flex flex-col justify-between bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-md ring-1 ring-gray-200 dark:ring-gray-700 overflow-hidden transition-all duration-200">
                             <div class="p-6">
                                 <div class="flex justify-between items-start mb-4">
@@ -175,11 +179,14 @@ $getCategoryColor = function ($category) {
                                     </span>
                                 </div>
                                 
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-                                    <a href="/assessment/{{ $a['assessment_id'] }}" wire:navigate class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                                        {{ $a['assessment_id'] }}
-                                    </a>
+                                <h3 class="text-lg font-semibold italic text-gray-900 dark:text-white mb-1">
+                                    {{ $a['taxon_scientific_name'] ?? 'Unknown' }}
                                 </h3>
+                                <p class="text-sm font-mono text-blue-600 dark:text-blue-400 mb-2">
+                                    <a href="/assessment/{{ $a['assessment_id'] }}" wire:navigate class="hover:underline">
+                                        ID: {{ $a['assessment_id'] }}
+                                    </a>
+                                </p>
                                 
                                 <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">
                                     {{ IucnApiService::translateCategory($cat) }}
@@ -193,8 +200,8 @@ $getCategoryColor = function ($category) {
                             </div>
                             
                             <div class="bg-gray-50 dark:bg-gray-900/50 px-6 py-3 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center mt-auto">
-                                <span class="text-xs text-gray-500 dark:text-gray-400 font-mono" title="SIS ID">SIS: {{ $a['sis_id'] ?? 'N/A' }}</span>
-                                <a href="https://www.iucnredlist.org/species/{{ $a['sis_id'] ?? '' }}/{{ $a['assessment_id'] }}" target="_blank" rel="noopener noreferrer" class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 inline-flex items-center transition-colors">
+                                <span class="text-xs text-gray-500 dark:text-gray-400 font-mono" title="SIS Taxon ID">SIS: {{ $a['sis_taxon_id'] ?? 'N/A' }}</span>
+                                <a href="{{ $a['url'] ?? '#' }}" target="_blank" rel="noopener noreferrer" class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 inline-flex items-center transition-colors">
                                     View on IUCN
                                     <svg class="ml-1 w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                                 </a>
