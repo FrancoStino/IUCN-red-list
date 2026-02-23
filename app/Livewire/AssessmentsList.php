@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Livewire;
 
 use App\Services\IucnApiService;
+use Livewire\Attributes\Defer;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
+#[Defer]
 #[Layout('components.layouts.app')]
 #[Title('Assessments - IUCN Red List Explorer')]
 class AssessmentsList extends Component
@@ -45,8 +47,6 @@ class AssessmentsList extends Component
 
     public bool $hasMore = true;
 
-    public bool $loading = true;
-
     public function mount(string $type, string $code): void
     {
         $this->type = $type;
@@ -62,12 +62,13 @@ class AssessmentsList extends Component
             $match = collect($countries)->firstWhere('code', $this->code);
             $this->name = $match['name'] ?? strtoupper($this->code);
         }
+
+        $this->loadAssessments();
     }
 
-    public function loadData(): void
+    public function placeholder(): string
     {
-        $this->loadAssessments();
-        $this->loading = false;
+        return view('livewire.placeholders.assessments-list')->render();
     }
 
     public function loadAssessments(): void
