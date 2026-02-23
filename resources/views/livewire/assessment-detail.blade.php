@@ -18,16 +18,16 @@
         </div>
     @else
         @php
-            $cat = $assessment['category'] ?? 'NE';
-            $catName = \App\Services\IucnApiService::translateCategory($cat);
-            $sisId = $assessment['sis_id'] ?? null;
+            $cat = $assessment['red_list_category']['code'] ?? 'NE';
+            $catName = $assessment['red_list_category']['description']['en'] ?? \App\Services\IucnApiService::translateCategory($cat);
+            $sisId = $assessment['sis_taxon_id'] ?? null;
             $year = $assessment['year_published'] ?? 'N/A';
             $criteria = $assessment['criteria'] ?? null;
-            $popTrend = $assessment['population_trend'] ?? null;
+            $popTrend = $assessment['population_trend']['description']['en'] ?? null;
             $possiblyExtinct = $assessment['possibly_extinct'] ?? false;
             $possiblyExtinctWild = $assessment['possibly_extinct_in_the_wild'] ?? false;
             $conservationActions = $assessment['conservation_actions'] ?? [];
-            $documentation = $assessment['documentation'] ?? '';
+            $documentation = $assessment['documentation'] ?? [];
 
             $catColors = match($cat) {
                 'EX' => ['bg' => 'bg-black', 'text' => 'text-white', 'ring' => 'ring-black/20', 'light_bg' => 'bg-gray-100', 'light_text' => 'text-gray-900'],
@@ -93,19 +93,17 @@
                 </div>
 
                 {{-- External Link --}}
-                @if($sisId)
-                    <a
-                        href="https://www.iucnredlist.org/species/{{ $sisId }}/{{ $assessmentId }}"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 hover:text-gray-900 transition-colors"
-                    >
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
-                        IUCN Red List
-                    </a>
-                @endif
+                <a
+                    href="{{ $assessment['url'] ?? 'https://www.iucnredlist.org/species/' . ($sisId ?? '') . '/' . $assessmentId }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 hover:text-gray-900 transition-colors"
+                >
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    IUCN Red List
+                </a>
             </div>
         </div>
 
@@ -204,7 +202,7 @@
                 <div class="flex flex-wrap gap-2">
                     @foreach($conservationActions as $action)
                         @php
-                            $actionName = is_array($action) ? ($action['name'] ?? $action['code'] ?? json_encode($action)) : (string) $action;
+                            $actionName = is_array($action) ? ($action['description']['en'] ?? $action['code'] ?? 'Unknown') : (string) $action;
                         @endphp
                         <span class="inline-flex items-center rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2 text-sm font-medium text-emerald-800">
                             {{ $actionName }}
@@ -214,39 +212,72 @@
             </div>
         @endif
 
+        {{-- Systems --}}
+        @php $systems = $assessment['systems'] ?? []; @endphp
+        @if(count($systems) > 0)
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8">
+                <div class="flex items-center gap-3 mb-6">
+                    <span class="text-xl">🌍</span>
+                    <h2 class="text-xl font-bold text-gray-900">Systems</h2>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    @foreach($systems as $system)
+                        <a href="/assessments/system/{{ $system['code'] ?? '' }}"
+                           wire:navigate
+                           class="inline-flex items-center rounded-lg bg-blue-50 border border-blue-200 px-3 py-2 text-sm font-medium text-blue-800 hover:bg-blue-100 transition-colors">
+                            {{ $system['description']['en'] ?? $system['code'] ?? 'Unknown' }}
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
         {{-- Documentation --}}
-        @if(!empty($documentation))
+        @php
+            $docSections = is_array($documentation) ? $documentation : [];
+            $sectionLabels = [
+                'rationale' => 'Rationale',
+                'range' => 'Geographic Range',
+                'population' => 'Population',
+                'habitats' => 'Habitat and Ecology',
+                'threats' => 'Threats',
+                'measures' => 'Conservation Measures',
+                'use_trade' => 'Use and Trade',
+                'trend_justification' => 'Population Trend Justification',
+                'taxonomic_notes' => 'Taxonomic Notes',
+            ];
+            $hasDoc = collect($docSections)->filter()->isNotEmpty();
+        @endphp
+
+        @if($hasDoc)
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8">
                 <div class="flex items-center gap-3 mb-6">
                     <span class="text-xl">📄</span>
                     <h2 class="text-xl font-bold text-gray-900">Documentation</h2>
                 </div>
 
-                <div class="prose prose-sm max-w-none
-                    [&>h1]:text-xl [&>h1]:font-bold [&>h1]:text-gray-900 [&>h1]:mt-6 [&>h1]:mb-3
-                    [&>h2]:text-lg [&>h2]:font-bold [&>h2]:text-gray-900 [&>h2]:mt-5 [&>h2]:mb-2
-                    [&>h3]:text-base [&>h3]:font-semibold [&>h3]:text-gray-800 [&>h3]:mt-4 [&>h3]:mb-2
-                    [&>p]:text-gray-700 [&>p]:leading-relaxed [&>p]:mb-3
-                    [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:mb-3 [&>ul]:text-gray-700
-                    [&>ol]:list-decimal [&>ol]:pl-5 [&>ol]:mb-3 [&>ol]:text-gray-700
-                    [&>li]:mb-1
-                    [&>a]:text-emerald-700 [&>a]:underline [&>a]:underline-offset-2
-                    [&>table]:w-full [&>table]:border-collapse [&>table]:text-sm
-                    [&>table_th]:bg-gray-50 [&>table_th]:border [&>table_th]:border-gray-200 [&>table_th]:px-3 [&>table_th]:py-2 [&>table_th]:text-left
-                    [&>table_td]:border [&>table_td]:border-gray-200 [&>table_td]:px-3 [&>table_td]:py-2
-                    [&_a]:text-emerald-700 [&_a]:underline [&_a]:underline-offset-2
-                    [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-3
-                    [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-3
-                    [&_li]:mb-1 [&_li]:text-gray-700
-                    [&_p]:text-gray-700 [&_p]:leading-relaxed [&_p]:mb-3
-                    [&_h1]:text-xl [&_h1]:font-bold [&_h1]:text-gray-900 [&_h1]:mt-6 [&_h1]:mb-3
-                    [&_h2]:text-lg [&_h2]:font-bold [&_h2]:text-gray-900 [&_h2]:mt-5 [&_h2]:mb-2
-                    [&_h3]:text-base [&_h3]:font-semibold [&_h3]:text-gray-800 [&_h3]:mt-4 [&_h3]:mb-2
-                    [&_table]:w-full [&_table]:border-collapse [&_table]:text-sm
-                    [&_th]:bg-gray-50 [&_th]:border [&_th]:border-gray-200 [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:font-semibold
-                    [&_td]:border [&_td]:border-gray-200 [&_td]:px-3 [&_td]:py-2
-                ">
-                    {!! $documentation !!}
+                <div class="space-y-8">
+                    @foreach($sectionLabels as $key => $label)
+                        @if(!empty($docSections[$key]))
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                    {{ $label }}
+                                </h3>
+                                <div class="prose prose-sm max-w-none
+                                    [&_a]:text-emerald-700 [&_a]:underline [&_a]:underline-offset-2
+                                    [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-3
+                                    [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-3
+                                    [&_li]:mb-1 [&_li]:text-gray-700
+                                    [&_p]:text-gray-700 [&_p]:leading-relaxed [&_p]:mb-3
+                                    [&_table]:w-full [&_table]:border-collapse [&_table]:text-sm
+                                    [&_th]:bg-gray-50 [&_th]:border [&_th]:border-gray-200 [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:font-semibold
+                                    [&_td]:border [&_td]:border-gray-200 [&_td]:px-3 [&_td]:py-2
+                                ">
+                                    {!! $docSections[$key] !!}
+                                </div>
+                            </div>
+                        @endif
+                    @endforeach
                 </div>
             </div>
         @endif
