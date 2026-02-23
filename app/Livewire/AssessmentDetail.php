@@ -17,10 +17,18 @@ class AssessmentDetail extends Component
 
     public array $assessment = [];
 
-    public function mount(int $assessmentId, IucnApiService $service): void
+    public bool $loading = true;
+
+    public function mount(int $assessmentId): void
     {
         $this->assessmentId = $assessmentId;
-        $this->assessment = $service->getAssessmentDetails($assessmentId);
+    }
+
+    public function loadData(): void
+    {
+        $service = app(IucnApiService::class);
+        $this->assessment = $service->getAssessmentDetails($this->assessmentId);
+        $this->loading = false;
     }
 
     public function render()

@@ -19,12 +19,20 @@ class SpeciesDetail extends Component
 
     public array $assessments = [];
 
-    public function mount(int $sisId, IucnApiService $service): void
+    public bool $loading = true;
+
+    public function mount(int $sisId): void
     {
         $this->sisId = $sisId;
-        $data = $service->getTaxonDetails($sisId);
+    }
+
+    public function loadData(): void
+    {
+        $service = app(IucnApiService::class);
+        $data = $service->getTaxonDetails($this->sisId);
         $this->taxon = $data['taxon'] ?? [];
         $this->assessments = $data['assessments'] ?? [];
+        $this->loading = false;
     }
 
     public function render()

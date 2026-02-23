@@ -45,6 +45,8 @@ class AssessmentsList extends Component
 
     public bool $hasMore = true;
 
+    public bool $loading = true;
+
     public function mount(string $type, string $code): void
     {
         $this->type = $type;
@@ -60,8 +62,12 @@ class AssessmentsList extends Component
             $match = collect($countries)->firstWhere('code', $this->code);
             $this->name = $match['name'] ?? strtoupper($this->code);
         }
+    }
 
+    public function loadData(): void
+    {
         $this->loadAssessments();
+        $this->loading = false;
     }
 
     public function loadAssessments(): void

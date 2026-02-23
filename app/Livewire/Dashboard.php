@@ -19,10 +19,14 @@ class Dashboard extends Component
 
     public string $search = '';
 
-    public function mount(IucnApiService $service): void
+    public bool $loading = true;
+
+    public function loadData(): void
     {
+        $service = app(IucnApiService::class);
         $this->systems = $service->getSystems();
         $this->countries = $service->getCountries();
+        $this->loading = false;
     }
 
     public function render()
