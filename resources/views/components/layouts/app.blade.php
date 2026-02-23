@@ -7,6 +7,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-stone-50 flex flex-col antialiased">
+    @php $favCount = \App\Models\Favorite::count(); @endphp
+
     <!-- Navigation Header -->
     <nav class="bg-emerald-950 sticky top-0 z-50 shadow-xl shadow-emerald-950/20">
         {{-- Top accent bar --}}
@@ -39,13 +41,16 @@
                         <a
                             href="/favorites"
                             wire:navigate
-                            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300
+                            class="relative inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300
                                 {{ request()->is('favorites')
                                     ? 'text-white bg-emerald-800/60 shadow-inner'
                                     : 'text-emerald-300/80 hover:text-white hover:bg-emerald-800/40' }}"
                         >
                             <svg class="w-4 h-4" fill="{{ request()->is('favorites') ? 'currentColor' : 'none' }}" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 7.875c-.278-2.908-2.754-5.125-5.752-5.125A5.5 5.5 0 0 0 12 5.052 5.5 5.5 0 0 0 7.688 2.75C4.714 2.75 2.25 5.072 2.25 8c0 3.925 2.438 7.111 4.739 9.256a25.175 25.175 0 0 0 4.244 3.17c.138.082.27.157.383.218l.022.012.007.004.003.001a.752.752 0 0 0 .704 0l.003-.001.007-.004.022-.012a15.247 15.247 0 0 0 .383-.218 25.18 25.18 0 0 0 4.244-3.17C19.312 15.111 21.75 11.925 21.75 8c0-.042 0-.083-.002-.125Z" /></svg>
                             Favorites
+                            @if($favCount > 0)
+                                <span class="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 text-xs font-bold text-white bg-rose-500 rounded-full shadow-sm shadow-rose-500/40">{{ $favCount }}</span>
+                            @endif
                         </a>
                     </div>
                 </div>
@@ -64,11 +69,14 @@
                     <a
                         href="/favorites"
                         wire:navigate
-                        class="inline-flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300
+                        class="relative inline-flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300
                             {{ request()->is('favorites') ? 'text-white bg-emerald-800/60' : 'text-emerald-400/70 hover:text-white hover:bg-emerald-800/40' }}"
                         title="Favorites"
                     >
                         <svg class="w-5 h-5" fill="{{ request()->is('favorites') ? 'currentColor' : 'none' }}" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 7.875c-.278-2.908-2.754-5.125-5.752-5.125A5.5 5.5 0 0 0 12 5.052 5.5 5.5 0 0 0 7.688 2.75C4.714 2.75 2.25 5.072 2.25 8c0 3.925 2.438 7.111 4.739 9.256a25.175 25.175 0 0 0 4.244 3.17c.138.082.27.157.383.218l.022.012.007.004.003.001a.752.752 0 0 0 .704 0l.003-.001.007-.004.022-.012a15.247 15.247 0 0 0 .383-.218 25.18 25.18 0 0 0 4.244-3.17C19.312 15.111 21.75 11.925 21.75 8c0-.042 0-.083-.002-.125Z" /></svg>
+                        @if($favCount > 0)
+                            <span class="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 text-xs font-bold text-white bg-rose-500 rounded-full shadow-sm shadow-rose-500/40">{{ $favCount }}</span>
+                        @endif
                     </a>
                 </div>
             </div>

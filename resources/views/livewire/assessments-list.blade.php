@@ -129,6 +129,9 @@ $getCategoryColor = function ($category) {
                                 <th scope="col" class="px-3 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Assessment ID</th>
                                 <th scope="col" class="px-3 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Category</th>
                                 <th scope="col" class="px-3 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Flags</th>
+                                <th scope="col" class="px-3 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider w-12">
+                                    <svg class="w-4 h-4 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 7.875c-.278-2.908-2.754-5.125-5.752-5.125A5.5 5.5 0 0 0 12 5.052 5.5 5.5 0 0 0 7.688 2.75C4.714 2.75 2.25 5.072 2.25 8c0 3.925 2.438 7.111 4.739 9.256a25.175 25.175 0 0 0 4.244 3.17c.138.082.27.157.383.218l.022.012.007.004.003.001a.752.752 0 0 0 .704 0l.003-.001.007-.004.022-.012a15.247 15.247 0 0 0 .383-.218 25.18 25.18 0 0 0 4.244-3.17C19.312 15.111 21.75 11.925 21.75 8c0-.042 0-.083-.002-.125Z" /></svg>
+                                </th>
                                 <th scope="col" class="relative py-4 pl-3 pr-6">
                                     <span class="sr-only">Actions</span>
                                 </th>
@@ -163,6 +166,14 @@ $getCategoryColor = function ($category) {
                                             <span class="text-gray-300">—</span>
                                         @endif
                                     </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-center">
+                                        <livewire:favorite-toggle
+                                            :taxon-id="$a['sis_taxon_id']"
+                                            :scientific-name="$a['taxon_scientific_name'] ?? 'Unknown'"
+                                            :compact="true"
+                                            :wire:key="'fav-list-'.$a['sis_taxon_id'].'-'.$a['assessment_id']"
+                                        />
+                                    </td>
                                     <td class="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm font-medium">
                                         <a href="{{ $a['url'] ?? '#' }}" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-emerald-600 transition-colors opacity-0 group-hover:opacity-100 flex items-center justify-end">
                                             IUCN <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
@@ -187,9 +198,17 @@ $getCategoryColor = function ($category) {
                                     <span class="inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-bold uppercase tracking-wider shadow-sm {{ $getCategoryColor($cat) }}">
                                         {{ $cat }}
                                     </span>
-                                    <span class="text-xs font-mono text-gray-500 bg-gray-100 px-2.5 py-1 rounded-lg">
-                                        {{ $a['year_published'] ?? 'N/A' }}
-                                    </span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-mono text-gray-500 bg-gray-100 px-2.5 py-1 rounded-lg">
+                                            {{ $a['year_published'] ?? 'N/A' }}
+                                        </span>
+                                        <livewire:favorite-toggle
+                                            :taxon-id="$a['sis_taxon_id']"
+                                            :scientific-name="$a['taxon_scientific_name'] ?? 'Unknown'"
+                                            :compact="true"
+                                            :wire:key="'fav-card-'.$a['sis_taxon_id'].'-'.$a['assessment_id']"
+                                        />
+                                    </div>
                                 </div>
 
                                 <h3 class="text-lg font-semibold italic text-gray-900 mb-1 group-hover:text-emerald-800 transition-colors duration-300">

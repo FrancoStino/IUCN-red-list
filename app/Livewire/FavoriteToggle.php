@@ -12,11 +12,13 @@ class FavoriteToggle extends Component
     public int $taxonId;
     public string $scientificName;
     public bool $isFavorite = false;
+    public bool $compact = false;
 
-    public function mount(int $taxonId, string $scientificName): void
+    public function mount(int $taxonId, string $scientificName, bool $compact = false): void
     {
         $this->taxonId = $taxonId;
         $this->scientificName = $scientificName;
+        $this->compact = $compact;
         $this->isFavorite = Favorite::where('taxon_id', $this->taxonId)->exists();
     }
 
@@ -33,6 +35,8 @@ class FavoriteToggle extends Component
             ]);
             $this->isFavorite = true;
         }
+
+        $this->dispatch('favorites-updated');
     }
 
     public function render()
