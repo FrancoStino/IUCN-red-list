@@ -15,15 +15,20 @@ class SpeciesDetail extends Component
 {
     public int $sisId;
     public array $taxon = [];
+    public array $assessments = [];
 
     public function mount(int $sisId, IucnApiService $service): void
     {
         $this->sisId = $sisId;
-        $this->taxon = $service->getTaxonDetails($sisId);
+        $data = $service->getTaxonDetails($sisId);
+        $this->taxon = $data['taxon'] ?? [];
+        $this->assessments = $data['assessments'] ?? [];
     }
 
     public function render()
     {
-        return view('livewire.species-detail');
+        return view('livewire.species-detail', [
+            'assessments' => $this->assessments,
+        ]);
     }
 }

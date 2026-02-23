@@ -42,11 +42,11 @@
                     {{-- Taxonomy Info --}}
                     @php
                         $taxonomyFields = [
-                            'kingdom' => $taxon['kingdom'] ?? null,
-                            'phylum' => $taxon['phylum'] ?? null,
-                            'class' => $taxon['class'] ?? null,
-                            'order' => $taxon['order'] ?? null,
-                            'family' => $taxon['family'] ?? null,
+                            'kingdom' => $taxon['kingdom_name'] ?? null,
+                            'phylum' => $taxon['phylum_name'] ?? null,
+                            'class' => $taxon['class_name'] ?? null,
+                            'order' => $taxon['order_name'] ?? null,
+                            'family' => $taxon['family_name'] ?? null,
                         ];
                         $taxonomyFields = array_filter($taxonomyFields);
                     @endphp
@@ -129,7 +129,7 @@
 
         {{-- Assessments Section --}}
         @php
-            $assessments = $taxon['assessments'] ?? [];
+            $assessments = $assessments ?? [];
         @endphp
 
         <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
@@ -151,7 +151,7 @@
                 <div class="space-y-3">
                     @foreach($assessments as $a)
                         @php
-                            $cat = $a['category'] ?? 'NE';
+                            $cat = $a['red_list_category_code'] ?? 'NE';
                             $catName = \App\Services\IucnApiService::translateCategory($cat);
                             $aId = $a['assessment_id'] ?? null;
                             $year = $a['year_published'] ?? 'N/A';
